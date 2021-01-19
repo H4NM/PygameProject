@@ -17,6 +17,16 @@ WIDTH = 900
 HEIGHT = 700
 FPS = 60
 TITLE = "Game of the year edition"
+MELEE_DISTANCE = 10
+
+#LAYERS
+WALL_LAYER = 1
+CAR_LAYER = 4
+PLAYER_LAYER = 2
+BULLET_LAYER = 3
+MOB_LAYER = 2
+EFFECTS_LAYER = 4
+ITEMS_LAYER = 1
 
 #PLAYER SETTINGS
 PLAYER_HEALTH = 100
@@ -44,14 +54,12 @@ PLAYER_LEFT_7 = 'L7.png'
 PLAYER_LEFT_8 = 'L8.png'
 PLAYER_LEFT_9 = 'L9.png'
 
-
-
 #STANDARD ORC MOB SETTINGS
 ORC_MOB_HEALTH = 10
 ORC_MOB_DAMAGE = 5
 ORC_MOB_SPEED = 100
 ORC_MOB_DETEC_RADIUS = 140
-ORC_MOB_HIT_RECT = pg.Rect(0, 0, 35, 35)
+ORC_MOB_HIT_RECT = pg.Rect(0, 0, 20, 35)
 ORC_MOB_IMG = 'L7E.png'
 
 ORC_MOB_RIGHT_1 = 'R1E.png'
@@ -72,11 +80,34 @@ ORC_MOB_LEFT_6 = 'L6E.png'
 ORC_MOB_LEFT_7 = 'L7E.png'
 ORC_MOB_LEFT_8 = 'L8E.png'
 
-#LAYERS
-WALL_LAYER = 1
-CAR_LAYER = 4
-PLAYER_LAYER = 2
-BULLET_LAYER = 3
-MOB_LAYER = 2
-EFFECTS_LAYER = 4
-ITEMS_LAYER = 1
+
+
+#WEAPON RECT SIZES
+LARGE_RECT = pg.Rect(0,0,50,50)
+MEDIUM_RECT = pg.Rect(0,0,40,40)
+SMALL_RECT = pg.Rect(0,0,30,30)
+
+
+#WEAPONS AND ITEMS
+MELEE_DEMO_ATTACK_IMG = 'melee_demoattack.png'
+WEAPONS = {}
+WEAPONS['fists'] = {
+                         'type': 'melee',
+                         'attack_lifetime': 1000,
+                         'rate': 220,
+                         'kickback': 100,
+                         'damage': 5,
+                         'range': 35,
+                         'lifetime': 300,
+                         'rect': SMALL_RECT
+                         }
+WEAPONS['basic_sword'] = {
+                         'type': 'melee',
+                         'attack_lifetime': 1000,
+                         'rate': 420,
+                         'kickback': 200,
+                         'damage': 10,
+                         'range': 20,
+                         'lifetime': 500,
+                         'rect': MEDIUM_RECT
+                         }

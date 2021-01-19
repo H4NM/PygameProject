@@ -35,6 +35,7 @@ class Game:
         music_folder = path.join(game_folder, 'music')
         self.map_folder = path.join(game_folder, 'SampleMap')
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
+        self.melee_demoattack = pg.image.load(path.join(img_folder, MELEE_DEMO_ATTACK_IMG)).convert_alpha()
 
         #PLAYER IMAGES
         self.player_walkRight = [pg.image.load(path.join(img_folder, PLAYER_RIGHT_1)), pg.image.load(path.join(img_folder, PLAYER_RIGHT_2)),
@@ -64,6 +65,9 @@ class Game:
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.mobs = pg.sprite.Group()
         self.orcmobs = pg.sprite.Group()
+        self.walls = pg.sprite.Group()
+        self.melee_attacks = pg.sprite.Group()
+        
         self.map = TiledMap(path.join(self.map_folder, 'samplemap.tmx'))
         self.map_img = self.map.make_map()
         self.map.rect = self.map_img.get_rect()
@@ -71,9 +75,9 @@ class Game:
         self.paused = False
         
         for tile_object in self.map.tmxdata.objects:
-            
-            obj_center = vec(tile_object.x + tile_object.width / 2,
-                             tile_object.y + tile_object.height / 2)
+            #FOR HIGHER RESOLUTION Added '* 2' which interprets for 64 bit instead of 32
+            obj_center = vec(tile_object.x * 2+ tile_object.width / 2,
+                             tile_object.y * 2+ tile_object.height / 2)
             if tile_object.name == 'player':
                 self.player = Player(self, obj_center.x, obj_center.y)
                 
@@ -81,8 +85,11 @@ class Game:
                 orcmob = OrcMob(self, obj_center.x, obj_center.y)
                 self.mobs.add(orcmob)
                 self.orcmobs.add(orcmob)
-
-
+                
+            if tile_object.name == 'wall':
+                #FOR HIGHER RESOLUTION added '* 2' 
+                Obstacle(self, tile_object.x * 2, tile_object.y* 2 , tile_object.width, tile_object.height)
+                         
     def run(self):
         self.playing = True
 
@@ -111,13 +118,16 @@ class Game:
 
       
     def draw(self):
-        pg.display.set_caption(("LERVIK - FPS: " + "{:.2f}".format(self.clock.get_fps())))
+        pg.display.set_caption((TITLE + " - FPS: " + "{:.2f}".format(self.clock.get_fps())))
         
         # self.screen.fill(BGCOLOR)
         self.screen.blit(self.map_img, self.camera.apply(self.map))
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-            
+          #  pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+        for wall in self.walls:
+            pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.hit_rect), 1)
+                
         pg.display.flip()
 
 
