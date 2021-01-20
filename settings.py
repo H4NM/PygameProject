@@ -28,10 +28,22 @@ MOB_LAYER = 2
 EFFECTS_LAYER = 4
 ITEMS_LAYER = 1
 
+#ITEMS SETTINGS
+BOB_RANGE = 12
+BOB_SPEED = 0.3
+ITEM_HIT_RECT = pg.Rect(0, 0, 35, 35)
+
+
+ITEM_IMAGES = {'basic_sword_1': 'basic_sword_1.png',
+               }
+
+
 #PLAYER SETTINGS
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 220
-PLAYER_HIT_RECT = pg.Rect(52, -82, 35, 65)
+PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 65)
+PLAYER_INVENTORY = ['fists']
+
 PLAYER_IMG = 'standing.png'
 
 PLAYER_RIGHT_1 = 'R1.png'
@@ -97,7 +109,7 @@ WEAPONS = {}
 WEAPONS['fists'] = {
                          'type': 'melee',
                          'attack_effect': 'strike',
-                         'rate': 320,
+                         'rate': 420,
                          'kickback': 100,
                          'damage': 5,
                          'range': 35,
@@ -105,7 +117,7 @@ WEAPONS['fists'] = {
                          'rect': SMALL_RECT
                          }
 
-WEAPONS['basic_sword'] = {
+WEAPONS['basic_sword_1'] = {
                          'type': 'melee',
                          'attack_effect': 'slash',
                          'rate': 420,

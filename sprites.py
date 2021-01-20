@@ -56,6 +56,7 @@ class Player(pg.sprite.Sprite):
         self.speed = PLAYER_SPEED
 
         #WEAPON SETTINGS
+        self.inventory = PLAYER_INVENTORY
         self.weapon = 'fists'
         self.last_attack = 0
 
@@ -136,8 +137,8 @@ class Player(pg.sprite.Sprite):
         if current_time - self.last_attack > WEAPONS[self.weapon]['rate']:
             self.last_attack = current_time
             self.vel = vec(-WEAPONS[self.weapon]['kickback'], 0)
-
-            MeleeAttack(self.game, self.pos,(WEAPONS[self.weapon]['damage']), self.weapon, self.last_faced_direction)
+            
+            MeleeAttack(self.game, self.pos,(WEAPONS[self.weapon]['damage']), (WEAPONS[self.weapon]['attack_effect']), self.weapon, self.last_faced_direction)
             #snd = choice(self.game.weapon_sounds[self.weapon])
             #if snd.get_num_channels() > 2:
             #    snd.stop()
@@ -225,7 +226,6 @@ class OrcMob(pg.sprite.Sprite):
         self.hit_rect.centerx = self.pos.x
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'x')
-       
         collide_with_walls(self, self.game.walls, 'y')
 
 
@@ -234,13 +234,14 @@ class OrcMob(pg.sprite.Sprite):
 
 
 class MeleeAttack(pg.sprite.Sprite):
-    def __init__(self, game, pos, damage, weapon, direction):
+    def __init__(self, game, pos, damage, attackeffect, weapon, direction):
         super().__init__()
         self._layer = ITEMS_LAYER
         self.groups = game.all_sprites, game.attacks
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.attack_count = 0
+        self.effect = attackeffect
         x, y = pos
         self.angle = 0
         self.rect = WEAPONS[self.game.player.weapon]['rect']
@@ -276,10 +277,19 @@ class MeleeAttack(pg.sprite.Sprite):
 
         return rotated_image
 
+    def determine_effect(self, effecttype):
+        if effecttype == 'slash':
+            return self.game.slash_attack_1[self.attack_count//3]
+        elif effecttype == 'strike':
+            return self.game.melee_demoattack
+        else:
+            print('no effecttype')
+        
     def slash_animation(self):
         #CHANGE FROM 9 to what ever multiple of three. Currently 3 slash images (3*3 = 9)
         if self.attack_count + 1 <= 9:
-            tempimage = self.game.slash_attack_1[self.attack_count//3]
+
+            tempimage = self.determine_effect(self.effect)
             self.image = self.rot_center(tempimage, self.angle, self.pos)
 
             self.attack_count += 1                   
@@ -303,6 +313,31 @@ class MeleeAttack(pg.sprite.Sprite):
 class Door(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):
         pass
+
+class Item(pg.sprite.Sprite):
+    def __init__(self, game, pos, type):
+        self._layer = ITEMS_LAYER
+        self.groups = game.all_sprites, game.items
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = game.item_images[type]
+        self.rect = self.image.get_rect()
+        self.hit_rect = ITEM_HIT_RECT
+        self.type = type
+        self.pos = pos
+        self.rect.center = pos
+        self.tween = tween.easeInOutSine
+        self.step = 0
+        self.dir = 1
+
+    def update(self):
+        # bobbing motion
+        offset = BOB_RANGE * (self.tween(self.step / BOB_RANGE) - 0.5)
+        self.rect.centery = self.pos.y + offset * self.dir
+        self.step += BOB_SPEED
+        if self.step > BOB_RANGE:
+            self.step = 0
+            self.dir *= -1
 
 
 class Obstacle(pg.sprite.Sprite):

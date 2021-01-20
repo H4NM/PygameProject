@@ -63,7 +63,10 @@ class Game:
                                  pg.image.load(path.join(img_folder, ORC_MOB_LEFT_4)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_5)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_6)),
                                  pg.image.load(path.join(img_folder, ORC_MOB_LEFT_7)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_8))]
 
-        
+        #ITEM IMAGES
+        self.item_images = {}
+        for item in ITEM_IMAGES:
+            self.item_images[item] = pg.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
         
 
     def new_game(self):
@@ -71,6 +74,7 @@ class Game:
         self.mobs = pg.sprite.Group()
         self.orcmobs = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        self.items = pg.sprite.Group()
         self.attacks = pg.sprite.Group()
         
         self.map = TiledMap(path.join(self.map_folder, 'samplemap.tmx'))
@@ -94,6 +98,16 @@ class Game:
             if tile_object.name == 'wall':
                 #FOR HIGHER RESOLUTION added '* 2' 
                 Obstacle(self, tile_object.x * 2, tile_object.y* 2 , tile_object.width, tile_object.height)
+
+        #SEPERATE FOR-LOOP FOR EASIER MANAGEMENT 
+        for tile_object in self.map.tmxdata.objects:
+            #FOR HIGHER RESOLUTION Added '* 2' which interprets for 64 bit instead of 32
+            obj_center = vec(tile_object.x *2 + tile_object.width / 2,
+                             tile_object.y *2 + tile_object.height / 2)
+            
+            if tile_object.name in ['basic_sword_1']:
+                Item(self, obj_center, tile_object.name)
+                print('done')
                          
     def run(self):
         self.playing = True
@@ -126,7 +140,17 @@ class Game:
             for hit in hits:
                 print('hit')
 
-      
+        #FOR COLLIDING WITH ITEMS THAT GET PICKED UP
+        hits = pg.sprite.spritecollide(self.player, self.items, False)
+        
+        for hit in hits:
+            
+            if hit.type == 'basic_sword_1':
+                hit.kill()
+                self.player.inventory.append(hit.type)
+                self.player.weapon = hit.type
+                print(self.player.weapon)
+                
     def draw(self):
         pg.display.set_caption((TITLE + " - FPS: " + "{:.2f}".format(self.clock.get_fps())))
         
