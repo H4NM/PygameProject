@@ -47,6 +47,11 @@ class Game:
                                 pg.image.load(path.join(img_folder, PLAYER_LEFT_4)), pg.image.load(path.join(img_folder, PLAYER_LEFT_5)), pg.image.load(path.join(img_folder, PLAYER_LEFT_6)),
                                 pg.image.load(path.join(img_folder, PLAYER_LEFT_7)), pg.image.load(path.join(img_folder, PLAYER_LEFT_8)), pg.image.load(path.join(img_folder, PLAYER_LEFT_9))]
 
+        self.player_walkUp = None
+        self.player_walkDown = None
+
+        self.slash_attack_1 = [pg.image.load(path.join(img_folder, BASIC_SLASH_ATTACK_1)), pg.image.load(path.join(img_folder, BASIC_SLASH_ATTACK_2)), pg.image.load(path.join(img_folder, BASIC_SLASH_ATTACK_3))]
+
         #ORC IMAGES 
         self.orc_mob_img = pg.image.load(path.join(img_folder, ORC_MOB_IMG)).convert_alpha()
         
@@ -66,7 +71,7 @@ class Game:
         self.mobs = pg.sprite.Group()
         self.orcmobs = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.melee_attacks = pg.sprite.Group()
+        self.attacks = pg.sprite.Group()
         
         self.map = TiledMap(path.join(self.map_folder, 'samplemap.tmx'))
         self.map_img = self.map.make_map()
@@ -116,6 +121,11 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
 
+        hits = pg.sprite.groupcollide(self.mobs, self.attacks, False, False)
+        for mob in hits:
+            for hit in hits:
+                print('hit')
+
       
     def draw(self):
         pg.display.set_caption((TITLE + " - FPS: " + "{:.2f}".format(self.clock.get_fps())))
@@ -124,7 +134,7 @@ class Game:
         self.screen.blit(self.map_img, self.camera.apply(self.map))
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-          #  pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+            pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
         for wall in self.walls:
             pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.hit_rect), 1)
                 

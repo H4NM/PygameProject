@@ -30,8 +30,8 @@ ITEMS_LAYER = 1
 
 #PLAYER SETTINGS
 PLAYER_HEALTH = 100
-PLAYER_SPEED = 120
-PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
+PLAYER_SPEED = 220
+PLAYER_HIT_RECT = pg.Rect(52, -82, 35, 65)
 PLAYER_IMG = 'standing.png'
 
 PLAYER_RIGHT_1 = 'R1.png'
@@ -57,7 +57,7 @@ PLAYER_LEFT_9 = 'L9.png'
 #STANDARD ORC MOB SETTINGS
 ORC_MOB_HEALTH = 10
 ORC_MOB_DAMAGE = 5
-ORC_MOB_SPEED = 100
+ORC_MOB_SPEED = 40
 ORC_MOB_DETEC_RADIUS = 140
 ORC_MOB_HIT_RECT = pg.Rect(0, 0, 20, 35)
 ORC_MOB_IMG = 'L7E.png'
@@ -89,21 +89,25 @@ SMALL_RECT = pg.Rect(0,0,30,30)
 
 
 #WEAPONS AND ITEMS
+BASIC_SLASH_ATTACK_1 = 'slash_effect_1.png'
+BASIC_SLASH_ATTACK_2 = 'slash_effect_2.png'
+BASIC_SLASH_ATTACK_3 = 'slash_effect_3.png'
 MELEE_DEMO_ATTACK_IMG = 'melee_demoattack.png'
 WEAPONS = {}
 WEAPONS['fists'] = {
                          'type': 'melee',
-                         'attack_lifetime': 1000,
-                         'rate': 220,
+                         'attack_effect': 'strike',
+                         'rate': 320,
                          'kickback': 100,
                          'damage': 5,
                          'range': 35,
-                         'lifetime': 300,
+                         'lifetime': 350,
                          'rect': SMALL_RECT
                          }
+
 WEAPONS['basic_sword'] = {
                          'type': 'melee',
-                         'attack_lifetime': 1000,
+                         'attack_effect': 'slash',
                          'rate': 420,
                          'kickback': 200,
                          'damage': 10,

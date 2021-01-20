@@ -42,7 +42,7 @@ class Player(pg.sprite.Sprite):
         self.image = game.player_img
         self.rect = self.image.get_rect()
         self.hit_rect = PLAYER_HIT_RECT
-        
+        self.moving = False
         self.rect.center = (x, y)
         self.hit_rect.center = self.rect.center
         self.vel = vec(0, 0)
@@ -65,36 +65,41 @@ class Player(pg.sprite.Sprite):
         
         if self.player_wc + 1 <= 27:
 
-             
             if keys[pg.K_LEFT]:
                 self.vel = vec(-self.speed, 0)
                 self.image = self.game.player_walkLeft[self.player_wc//3]
                 self.player_wc += 1
                 self.last_faced_direction = 'LEFT'
+                self.moving = True
            
             elif keys[pg.K_RIGHT]:
                 self.vel = vec(self.speed, 0)
                 self.image = self.game.player_walkRight[self.player_wc//3]
                 self.player_wc += 1
                 self.last_faced_direction = 'RIGHT'
+                self.moving = True
                 
             elif keys[pg.K_UP]:
                 self.vel = vec(0, -self.speed)
                 self.last_faced_direction = 'UP'
+                self.moving = True
 
             elif keys[pg.K_DOWN]:
                 self.vel = vec(0, self.speed)
                 self.last_faced_direction = 'DOWN'
+                self.moving = True
             else:
+                self.moving = False
                 self.image = self.game.player_img
                 
         else:
             self.player_wc = 0
 
         if keys[pg.K_SPACE]:
-            if WEAPONS[self.weapon]['type'] == 'melee':
-                self.attack()
-                
+            if self.moving == False:
+                if WEAPONS[self.weapon]['type'] == 'melee':
+                    self.attack()
+                    
 
     def update(self):
         self.get_keys()
@@ -112,11 +117,11 @@ class Player(pg.sprite.Sprite):
         #COLLISIONS
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.walls, 'x')
-        collide_with_walls(self, self.game.mobs, 'y')
+        #collide_with_walls(self, self.game.mobs, 'y')
 
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'y')
-        collide_with_walls(self, self.game.mobs, 'y')
+        #collide_with_walls(self, self.game.mobs, 'y')
         
         self.rect.center = self.hit_rect.center
 
@@ -142,7 +147,6 @@ class Player(pg.sprite.Sprite):
 
 class OrcMob(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-
         
         #MOB GAME CHARACTERISTICS
         self._layer = MOB_LAYER
@@ -159,6 +163,7 @@ class OrcMob(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.rect.center = self.pos
+        
 
         #STATS
         self.damage = ORC_MOB_DAMAGE
@@ -230,38 +235,39 @@ class OrcMob(pg.sprite.Sprite):
 
 class MeleeAttack(pg.sprite.Sprite):
     def __init__(self, game, pos, damage, weapon, direction):
-        
         super().__init__()
         self._layer = ITEMS_LAYER
-        self.groups = game.all_sprites, game.melee_attacks
+        self.groups = game.all_sprites, game.attacks
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-         
+        self.attack_count = 0
         x, y = pos
-            
+        self.angle = 0
         self.rect = WEAPONS[self.game.player.weapon]['rect']
+        self.image = self.game.slash_attack_1[self.attack_count//3]
         
         self.spawn_time = pg.time.get_ticks()
         self.damage = damage
         
         if direction == 'UP':
             self.pos = vec(x,y) + (randint(0, 10), -WEAPONS[weapon]['range'])
-            self.image = self.rot_center(game.melee_demoattack, 90, self.pos)
+            self.angle = 180
         elif direction == 'DOWN':
             self.pos = vec(x, y) + (randint(0, 10), WEAPONS[weapon]['range'])
-            self.image = self.rot_center(game.melee_demoattack, 270, self.pos)
+            self.angle = 0
         elif direction == 'LEFT':
             self.pos = vec(x,y) + (-WEAPONS[weapon]['range'], randint(0, 10))
-            self.image = self.rot_center(game.melee_demoattack, 180, self.pos)
+            self.angle = 270
         elif direction == 'RIGHT':
             self.pos = vec(x,y) + (WEAPONS[weapon]['range'], randint(0, 10))
-            self.image = self.rot_center(game.melee_demoattack, 0, self.pos)
+            self.angle = 90
         else:
+            self.angle = 40
             self.pos = vec(x,y)
-            self.image = self.rot_center(game.melee_demoattack, 0, self.pos)
+        
         self.hit_rect = self.rect
-        self.rect.center = pos
 
+        
     def rot_center(self, image, angle, pos):
         x,y = pos
         rotated_image = pg.transform.rotate(image, angle)
@@ -269,10 +275,22 @@ class MeleeAttack(pg.sprite.Sprite):
         #new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
 
         return rotated_image
-        
+
+    def slash_animation(self):
+        #CHANGE FROM 9 to what ever multiple of three. Currently 3 slash images (3*3 = 9)
+        if self.attack_count + 1 <= 9:
+            tempimage = self.game.slash_attack_1[self.attack_count//3]
+            self.image = self.rot_center(tempimage, self.angle, self.pos)
+
+            self.attack_count += 1                   
+        else:
+            self.attack_count = 0
+        pass
 
     def update(self):
         #self.pos += self.vel * self.game.dt
+        self.slash_animation()
+        self.rect = self.image.get_rect(center=self.pos)
         self.rect.center = self.pos
         
 
