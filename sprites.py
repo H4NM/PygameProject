@@ -11,6 +11,31 @@ from math import sin, radians, degrees, copysign
 vec = pg.math.Vector2
 
 
+
+
+
+       
+
+def draw_health(self):
+        if self.health > self.start_health * 3/5:
+            col = GREEN
+        elif self.health > self.start_health * 1/3:
+            col = YELLOW
+        else:
+            col = RED
+
+        width_max = int(self.rect.width * self.start_health)
+        width = int(self.rect.width * self.health/self.start_health)
+
+        self.max_health_bar = pg.Rect(0, 0, width_max, 8)
+        self.health_bar = pg.Rect(2, 2, width-2, 5)
+        
+        if self.health < self.start_health:
+            pg.draw.rect(self.image, BLACK, self.max_health_bar)    
+            pg.draw.rect(self.image, col, self.health_bar)
+
+
+
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
@@ -97,10 +122,9 @@ class Player(pg.sprite.Sprite):
             self.player_wc = 0
 
         if keys[pg.K_SPACE]:
-            if self.moving == False:
-                if WEAPONS[self.weapon]['type'] == 'melee':
-                    self.attack()
-                    
+            if self.moving == False:            
+                self.attack()
+                
 
     def update(self):
         self.get_keys()
@@ -135,10 +159,13 @@ class Player(pg.sprite.Sprite):
         current_time = pg.time.get_ticks()
          
         if current_time - self.last_attack > WEAPONS[self.weapon]['rate']:
+            
             self.last_attack = current_time
             self.vel = vec(-WEAPONS[self.weapon]['kickback'], 0)
-            
-            MeleeAttack(self.game, self.pos,(WEAPONS[self.weapon]['damage']), (WEAPONS[self.weapon]['attack_effect']), self.weapon, self.last_faced_direction)
+            if WEAPONS[self.weapon]['type'] == 'melee':
+                MeleeAttack(self.game, self.pos,(WEAPONS[self.weapon]['damage']), (WEAPONS[self.weapon]['attack_effect']), self.weapon, self.last_faced_direction)
+            elif WEAPONS[self.weapon]['type'] == 'ranged':
+                RangedAttack(self.game, self.pos,(WEAPONS[self.weapon]['damage']), (WEAPONS[self.weapon]['attack_effect']), self.weapon, self.last_faced_direction)
             #snd = choice(self.game.weapon_sounds[self.weapon])
             #if snd.get_num_channels() > 2:
             #    snd.stop()
@@ -157,7 +184,7 @@ class OrcMob(pg.sprite.Sprite):
         self.image = game.orc_mob_img.copy()
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.hit_rect = ORC_MOB_HIT_RECT.copy()
+        self.hit_rect = self.rect
         self.hit_rect.center = self.rect.center
         self.pos = vec(x, y)
         
@@ -168,7 +195,8 @@ class OrcMob(pg.sprite.Sprite):
 
         #STATS
         self.damage = ORC_MOB_DAMAGE
-        self.health = ORC_MOB_HEALTH 
+        self.health = ORC_MOB_HEALTH
+        self.start_health = self.health
         self.speed = randint(40, 60)
         self.detect_radi = ORC_MOB_DETEC_RADIUS 
 
@@ -183,12 +211,12 @@ class OrcMob(pg.sprite.Sprite):
         if self.mob_wc + 1 <= 24:
             if x < target_x:
                 self.vel = vec(self.speed, 0)
-                self.image = self.game.orc_mob_walkRight[self.mob_wc//3]
+                self.image = self.game.orc_mob_walkRight[self.mob_wc//3].copy()
                 self.mob_wc += 1
                 
             elif x > target_x:
                 self.vel = vec(-self.speed, 0)
-                self.image = self.game.orc_mob_walkLeft[self.mob_wc//3]
+                self.image = self.game.orc_mob_walkLeft[self.mob_wc//3].copy()
                 self.mob_wc += 1
 
                 
@@ -208,7 +236,10 @@ class OrcMob(pg.sprite.Sprite):
         
     def update(self):
         self.rect = self.image.get_rect()
+        
         self.rect.center = self.pos
+        self.hit_rect = self.rect
+
         self.pos += self.vel * self.game.dt
         
         self.pos_x, self.pos_y = self.pos
@@ -218,64 +249,72 @@ class OrcMob(pg.sprite.Sprite):
         
 
         if target_dist.length_squared() < self.detect_radi**2:
-            self.move(target_dist, self.pos_x, self.pos_y)    
+            self.move(target_dist, self.pos_x, self.pos_y)
         else:
             self.vel = vec(0,0)
-            self.image = self.game.orc_mob_img
+            self.image = self.game.orc_mob_img.copy()
 
         self.hit_rect.centerx = self.pos.x
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'x')
         collide_with_walls(self, self.game.walls, 'y')
-
-
         
         self.rect.center = self.hit_rect.center
+        
+        if self.health <= 0:
+            self.kill()
 
-
-class MeleeAttack(pg.sprite.Sprite):
-    def __init__(self, game, pos, damage, attackeffect, weapon, direction):
+class MeleeAttackAni(pg.sprite.Sprite):
+    def __init__(self, game, pos, attackeffect, weapon, direction, spawn_time, expire_time):
         super().__init__()
         self._layer = ITEMS_LAYER
-        self.groups = game.all_sprites, game.attacks
+        self.groups = game.all_sprites, game.attack_animations
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
+        self.weapon = weapon
         self.attack_count = 0
         self.effect = attackeffect
+        self.spawn_time = spawn_time
+        self.expiration_time = expire_time
+
         x, y = pos
         self.angle = 0
-        self.rect = WEAPONS[self.game.player.weapon]['rect']
-        self.image = self.game.slash_attack_1[self.attack_count//3]
-        
-        self.spawn_time = pg.time.get_ticks()
-        self.damage = damage
-        
+        self.pos = vec(x,y)
         if direction == 'UP':
-            self.pos = vec(x,y) + (randint(0, 10), -WEAPONS[weapon]['range'])
             self.angle = 180
         elif direction == 'DOWN':
-            self.pos = vec(x, y) + (randint(0, 10), WEAPONS[weapon]['range'])
             self.angle = 0
         elif direction == 'LEFT':
-            self.pos = vec(x,y) + (-WEAPONS[weapon]['range'], randint(0, 10))
             self.angle = 270
         elif direction == 'RIGHT':
-            self.pos = vec(x,y) + (WEAPONS[weapon]['range'], randint(0, 10))
             self.angle = 90
         else:
             self.angle = 40
-            self.pos = vec(x,y)
-        
+            
+        self.image = game.empty_pic
+        self.rect = self.image.get_rect()
         self.hit_rect = self.rect
 
-        
-    def rot_center(self, image, angle, pos):
-        x,y = pos
-        rotated_image = pg.transform.rotate(image, angle)
-        #UTIFALL RECT BEHÖVER ROTERAS SÅ KAN DEN ÄNDRAS HÄRIFRÅN 
-        #new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
 
-        return rotated_image
+    def update(self):
+        self.slash_animation()
+        self.rect = self.image.get_rect(center=self.pos)
+        self.rect.center = self.pos
+        
+        if pg.time.get_ticks() - self.spawn_time > self.expiration_time and WEAPONS[self.weapon]['type'] == 'melee':
+            self.kill()
+        
+ 
+    def slash_animation(self):
+        #CHANGE FROM 9 to what ever multiple of three. Currently 3 slash images (3*3 = 9)
+        if self.attack_count + 1 <= 9:
+            tempimage = self.determine_effect(self.effect)
+            self.image = self.rot_center(tempimage, self.angle, self.pos)
+            self.attack_count += 1                   
+        else:
+            self.attack_count = 0
+        pass
+
 
     def determine_effect(self, effecttype):
         if effecttype == 'slash':
@@ -284,30 +323,153 @@ class MeleeAttack(pg.sprite.Sprite):
             return self.game.melee_demoattack
         else:
             print('no effecttype')
-        
-    def slash_animation(self):
-        #CHANGE FROM 9 to what ever multiple of three. Currently 3 slash images (3*3 = 9)
-        if self.attack_count + 1 <= 9:
 
+    
+    def rot_center(self, image, angle, pos):
+        rotated_image = pg.transform.rotate(image, angle)
+        #UTIFALL RECT BEHÖVER ROTERAS SÅ KAN DEN ÄNDRAS HÄRIFRÅN 
+        #new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
+        return rotated_image
+        
+    
+    
+            
+
+class MeleeAttack(pg.sprite.Sprite):
+    def __init__(self, game, pos, damage, attackeffect, weapon, direction):
+        super().__init__()
+        self._layer = ITEMS_LAYER
+        self.groups = game.all_sprites, game.attacks
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.weapon = weapon
+        self.effect = attackeffect
+        x, y = pos
+        self.angle = 0
+        self.image = game.empty_pic
+        self.rect = WEAPONS[self.weapon]['rect']
+
+        self.spawn_time = pg.time.get_ticks()
+        self.expiration_time = WEAPONS[self.weapon]['lifetime']
+        self.damage = damage
+        
+        if direction == 'UP':
+            self.pos = vec(x,y) + (randint(0, 10), -WEAPONS[self.weapon]['range'])
+            self.angle = 180
+        elif direction == 'DOWN':
+            self.pos = vec(x, y) + (randint(0, 10), WEAPONS[self.weapon]['range'])
+            self.angle = 0
+        elif direction == 'LEFT':
+            self.pos = vec(x,y) + (-WEAPONS[self.weapon]['range'], randint(0, 10))
+            self.angle = 270
+        elif direction == 'RIGHT':
+            self.pos = vec(x,y) + (WEAPONS[self.weapon]['range'], randint(0, 10))
+            self.angle = 90
+        else:
+            self.angle = 40
+            self.pos = vec(x,y)
+        self.hit_rect = self.rect
+        MeleeAttackAni(self.game, self.pos, self.effect, self.weapon, direction, self.spawn_time, self.expiration_time)
+
+
+    
+    def update(self):
+        #self.pos += self.vel * self.game.dt
+        #self.slash_animation()
+        self.rect = self.image.get_rect(center=self.pos)
+        self.rect.center = self.pos
+        self.hit_rect = self.rect
+        
+
+        #if pg.sprite.spritecollideany(self, self.game.walls):
+         #   self.kill()
+         
+        
+        if pg.time.get_ticks() - self.spawn_time > self.expiration_time and WEAPONS[self.weapon]['type'] == 'melee':
+            self.kill()
+
+    
+
+
+
+class RangedAttack(pg.sprite.Sprite):
+    def __init__(self, game, pos, damage, attackeffect, weapon, direction):
+        super().__init__()
+        self._layer = ITEMS_LAYER
+        self.groups = game.all_sprites, game.arrows
+        pg.sprite.Sprite.__init__(self, self.groups)
+        x,y = pos
+        self.game = game
+        self.weapon = weapon
+        self.image = self.game.melee_demoattack
+        self.rect = self.image.get_rect()
+        self.pos = vec(pos)
+        self.rect.center = pos
+        self.attack_count = 0
+        self.effect = WEAPONS[self.weapon]['attack_effect']
+        spread = randint(0, WEAPONS[self.weapon]['spread'])
+        self.damage = damage
+        
+        
+        if direction == 'UP':
+            self.vel = (0, -WEAPONS[self.weapon]['speed'])
+            self.angle = 90
+        elif direction == 'DOWN':
+            self.vel = (0, WEAPONS[self.weapon]['speed'])
+            self.angle = 270
+        elif direction == 'LEFT':
+            self.vel = (-WEAPONS[self.weapon]['speed'], 0)
+            self.angle = 180
+        elif direction == 'RIGHT':
+            self.angle = 0
+            self.vel = (WEAPONS[self.weapon]['speed'], 0)
+
+        else:
+            self.angle = 0
+            self.vel = (WEAPONS[self.weapon]['speed'], 0)
+        
+        self.spawn_time = pg.time.get_ticks()
+        self.hit_rect = self.rect
+
+    def update(self):
+        self.pos += self.vel 
+        self.arrow_animation()
+        self.rect = self.image.get_rect()
+        self.rect.center = self.pos
+        self.hit_rect = self.rect
+
+        
+
+        
+        if pg.sprite.spritecollideany(self, self.game.walls):
+            self.kill()
+        if pg.time.get_ticks() - self.spawn_time > WEAPONS[self.weapon]['lifetime'] and WEAPONS[self.weapon]['type'] == 'ranged':
+            self.kill()
+
+
+    def determine_effect(self, effecttype):
+        if effecttype == 'arrow':
+            return self.game.arrow_attack_1[self.attack_count//5]
+        else:
+            print('no effecttype')
+        
+    def arrow_animation(self):
+        #CHANGE FROM 9 to what ever multiple of three. Currently 3 slash images (3*3 = 9)
+        if self.attack_count + 1 <= 20:
             tempimage = self.determine_effect(self.effect)
             self.image = self.rot_center(tempimage, self.angle, self.pos)
-
             self.attack_count += 1                   
         else:
             self.attack_count = 0
         pass
 
-    def update(self):
-        #self.pos += self.vel * self.game.dt
-        self.slash_animation()
-        self.rect = self.image.get_rect(center=self.pos)
-        self.rect.center = self.pos
-        
+    def rot_center(self, image, angle, pos):
+        x,y = pos
+        rotated_image = pg.transform.rotate(image, angle)
+        #UTIFALL RECT BEHÖVER ROTERAS SÅ KAN DEN ÄNDRAS HÄRIFRÅN 
+        #new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
 
-        #if pg.sprite.spritecollideany(self, self.game.walls):
-         #   self.kill()
-        if pg.time.get_ticks() - self.spawn_time > WEAPONS[self.game.player.weapon]['lifetime']:
-            self.kill()
+        return rotated_image
 
 
 class Door(pg.sprite.Sprite):

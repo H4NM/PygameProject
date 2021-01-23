@@ -35,6 +35,7 @@ ITEM_HIT_RECT = pg.Rect(0, 0, 35, 35)
 
 
 ITEM_IMAGES = {'basic_sword_1': 'basic_sword_1.png',
+               'basic_bow_1': 'basic_bow_1.png'
                }
 
 
@@ -101,17 +102,27 @@ SMALL_RECT = pg.Rect(0,0,30,30)
 
 
 #WEAPONS AND ITEMS
+EMPTY_PIC = 'empty_pic.png'
+
 BASIC_SLASH_ATTACK_1 = 'slash_effect_1.png'
 BASIC_SLASH_ATTACK_2 = 'slash_effect_2.png'
 BASIC_SLASH_ATTACK_3 = 'slash_effect_3.png'
 MELEE_DEMO_ATTACK_IMG = 'melee_demoattack.png'
+BASIC_ARROW_1 = 'basic_arrow_1.png'
+BASIC_ARROW_2 = 'basic_arrow_2.png'
+BASIC_ARROW_3 = 'basic_arrow_3.png'
+BASIC_ARROW_4 = 'basic_arrow_4.png'
+BASIC_ARROW_5 = 'basic_arrow_5.png'
+
 WEAPONS = {}
+
+#MELEE WEAPONS SETTINGS
 WEAPONS['fists'] = {
                          'type': 'melee',
                          'attack_effect': 'strike',
                          'rate': 420,
                          'kickback': 100,
-                         'damage': 5,
+                         'damage': 1,
                          'range': 35,
                          'lifetime': 350,
                          'rect': SMALL_RECT
@@ -122,8 +133,22 @@ WEAPONS['basic_sword_1'] = {
                          'attack_effect': 'slash',
                          'rate': 420,
                          'kickback': 200,
-                         'damage': 10,
+                         'damage': 1,
                          'range': 20,
                          'lifetime': 500,
                          'rect': MEDIUM_RECT
+                         }
+
+#RANGED WEAPONS SETTINGS
+WEAPONS['basic_bow_1'] = {
+                         'type': 'ranged',
+                         'attack_effect': 'arrow',
+                         'rate': 520,
+                         'kickback': 200,
+                         'damage': 1,
+                         'range': 20,
+                         'lifetime': 2500,
+                         'rect': MEDIUM_RECT,
+                         'spread': 3,
+                         'speed': 4
                          }

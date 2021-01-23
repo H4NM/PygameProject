@@ -31,42 +31,52 @@ class Game:
             
         #PATHS
         img_folder = path.join(game_folder, 'img')
+        weapons_ani_folder = path.join(img_folder, 'weap_ani')
+        sprite_ani_folder = path.join(img_folder, 'sprite_ani')
+        item_img_folder = path.join(img_folder, 'item_img')
+
         snd_folder = path.join(game_folder, 'snd')
         music_folder = path.join(game_folder, 'music')
         self.map_folder = path.join(game_folder, 'SampleMap')
-        self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
-        self.melee_demoattack = pg.image.load(path.join(img_folder, MELEE_DEMO_ATTACK_IMG)).convert_alpha()
 
+        
+    
         #PLAYER IMAGES
-        self.player_walkRight = [pg.image.load(path.join(img_folder, PLAYER_RIGHT_1)), pg.image.load(path.join(img_folder, PLAYER_RIGHT_2)),
-                                 pg.image.load(path.join(img_folder, PLAYER_RIGHT_3)), pg.image.load(path.join(img_folder, PLAYER_RIGHT_4)), pg.image.load(path.join(img_folder, PLAYER_RIGHT_5)),
-                                 pg.image.load(path.join(img_folder, PLAYER_RIGHT_6)), pg.image.load(path.join(img_folder, PLAYER_RIGHT_7)), pg.image.load(path.join(img_folder, PLAYER_RIGHT_8)),
-                                 pg.image.load(path.join(img_folder, PLAYER_RIGHT_9))]
+        self.player_img = pg.image.load(path.join(sprite_ani_folder, PLAYER_IMG)).convert_alpha()
+        self.melee_demoattack = pg.image.load(path.join(weapons_ani_folder, MELEE_DEMO_ATTACK_IMG)).convert_alpha()
+        
+        self.player_walkRight = [pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_1)), pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_2)),
+                                 pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_3)), pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_4)), pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_5)),
+                                 pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_6)), pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_7)), pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_8)),
+                                 pg.image.load(path.join(sprite_ani_folder, PLAYER_RIGHT_9))]
 
-        self.player_walkLeft = [pg.image.load(path.join(img_folder, PLAYER_LEFT_1)), pg.image.load(path.join(img_folder, PLAYER_LEFT_2)), pg.image.load(path.join(img_folder, PLAYER_LEFT_3)),
-                                pg.image.load(path.join(img_folder, PLAYER_LEFT_4)), pg.image.load(path.join(img_folder, PLAYER_LEFT_5)), pg.image.load(path.join(img_folder, PLAYER_LEFT_6)),
-                                pg.image.load(path.join(img_folder, PLAYER_LEFT_7)), pg.image.load(path.join(img_folder, PLAYER_LEFT_8)), pg.image.load(path.join(img_folder, PLAYER_LEFT_9))]
-
+        self.player_walkLeft = [pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_1)), pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_2)), pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_3)),
+                                pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_4)), pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_5)), pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_6)),
+                                pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_7)), pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_8)), pg.image.load(path.join(sprite_ani_folder, PLAYER_LEFT_9))]
+        #PLACE HOLDERS FOR COMING ANIMATIONS
         self.player_walkUp = None
         self.player_walkDown = None
 
-        self.slash_attack_1 = [pg.image.load(path.join(img_folder, BASIC_SLASH_ATTACK_1)), pg.image.load(path.join(img_folder, BASIC_SLASH_ATTACK_2)), pg.image.load(path.join(img_folder, BASIC_SLASH_ATTACK_3))]
-
-        #ORC IMAGES 
-        self.orc_mob_img = pg.image.load(path.join(img_folder, ORC_MOB_IMG)).convert_alpha()
         
-        self.orc_mob_walkRight = [pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_1)), pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_2)),pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_3)),
-                                  pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_4)),pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_5)),pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_6)),
-                                  pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_7)),pg.image.load(path.join(img_folder, ORC_MOB_RIGHT_8))]
+        self.empty_pic = pg.image.load(path.join(item_img_folder, EMPTY_PIC)).convert_alpha()
+        self.slash_attack_1 = [pg.image.load(path.join(weapons_ani_folder, BASIC_SLASH_ATTACK_1)), pg.image.load(path.join(weapons_ani_folder, BASIC_SLASH_ATTACK_2)), pg.image.load(path.join(weapons_ani_folder, BASIC_SLASH_ATTACK_3))]
+        self.arrow_attack_1 = [pg.image.load(path.join(weapons_ani_folder, BASIC_ARROW_1)), pg.image.load(path.join(weapons_ani_folder, BASIC_ARROW_2)),
+                               pg.image.load(path.join(weapons_ani_folder, BASIC_ARROW_3)), pg.image.load(path.join(weapons_ani_folder, BASIC_ARROW_4))]
+        #ORC IMAGES 
+        self.orc_mob_img = pg.image.load(path.join(sprite_ani_folder, ORC_MOB_IMG)).convert_alpha()
+        
+        self.orc_mob_walkRight = [pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_1)), pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_2)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_3)),
+                                  pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_4)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_5)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_6)),
+                                  pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_7)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_RIGHT_8))]
 
-        self.orc_mob_walkLeft = [pg.image.load(path.join(img_folder, ORC_MOB_LEFT_1)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_2)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_3)),
-                                 pg.image.load(path.join(img_folder, ORC_MOB_LEFT_4)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_5)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_6)),
-                                 pg.image.load(path.join(img_folder, ORC_MOB_LEFT_7)),pg.image.load(path.join(img_folder, ORC_MOB_LEFT_8))]
+        self.orc_mob_walkLeft = [pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_1)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_2)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_3)),
+                                 pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_4)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_5)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_6)),
+                                 pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_7)),pg.image.load(path.join(sprite_ani_folder, ORC_MOB_LEFT_8))]
 
         #ITEM IMAGES
         self.item_images = {}
         for item in ITEM_IMAGES:
-            self.item_images[item] = pg.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
+            self.item_images[item] = pg.image.load(path.join(item_img_folder, ITEM_IMAGES[item])).convert_alpha()
         
 
     def new_game(self):
@@ -76,6 +86,8 @@ class Game:
         self.walls = pg.sprite.Group()
         self.items = pg.sprite.Group()
         self.attacks = pg.sprite.Group()
+        self.attack_animations = pg.sprite.Group()
+        self.arrows = pg.sprite.Group()
         
         self.map = TiledMap(path.join(self.map_folder, 'samplemap.tmx'))
         self.map_img = self.map.make_map()
@@ -105,9 +117,8 @@ class Game:
             obj_center = vec(tile_object.x *2 + tile_object.width / 2,
                              tile_object.y *2 + tile_object.height / 2)
             
-            if tile_object.name in ['basic_sword_1']:
+            if tile_object.name in ['basic_sword_1', 'basic_bow_1']:
                 Item(self, obj_center, tile_object.name)
-                print('done')
                          
     def run(self):
         self.playing = True
@@ -135,10 +146,17 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
 
-        hits = pg.sprite.groupcollide(self.mobs, self.attacks, False, False)
+        #DAMAGING MOBS
+        hits = pg.sprite.groupcollide(self.mobs, self.attacks, False, True)
         for mob in hits:
-            for hit in hits:
-                print('hit')
+            for attack in hits[mob]:
+                mob.health -= attack.damage
+
+        arrow_hits = pg.sprite.groupcollide(self.mobs, self.arrows, False, True)
+        for mob in arrow_hits:
+            for attack in arrow_hits[mob]:
+                mob.health -= attack.damage
+                
 
         #FOR COLLIDING WITH ITEMS THAT GET PICKED UP
         hits = pg.sprite.spritecollide(self.player, self.items, False)
@@ -149,16 +167,25 @@ class Game:
                 hit.kill()
                 self.player.inventory.append(hit.type)
                 self.player.weapon = hit.type
-                print(self.player.weapon)
+            if hit.type == 'basic_bow_1':
+                hit.kill()
+                self.player.inventory.append(hit.type)
+                self.player.weapon = hit.type
                 
     def draw(self):
         pg.display.set_caption((TITLE + " - FPS: " + "{:.2f}".format(self.clock.get_fps())))
         
         # self.screen.fill(BGCOLOR)
         self.screen.blit(self.map_img, self.camera.apply(self.map))
+
+            
         for sprite in self.all_sprites:
+            if isinstance(sprite, OrcMob):
+                draw_health(sprite)
+    
             self.screen.blit(sprite.image, self.camera.apply(sprite))
             pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+            
         for wall in self.walls:
             pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.hit_rect), 1)
                 
@@ -176,7 +203,22 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     self.quit()
-                
+                if event.key == pg.K_q:
+                    self.change_weapon()
+
+    def change_weapon(self):
+        list_length = len(self.player.inventory)
+        weapon_index = self.player.inventory.index(self.player.weapon)
+        if list_length > 1:
+            for weaponz in self.player.inventory[weapon_index - 1:]:
+                if weaponz != self.player.weapon:
+                    self.player.weapon = weaponz
+                    
+                    #ADD FUNCTION THAT DISPLAYS THE CURRENT WEAPON
+                    #self.change_model(self.player.weapon)
+                    break
+        print(self.player.weapon)
+            
 
 
         
