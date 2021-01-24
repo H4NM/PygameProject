@@ -77,6 +77,23 @@ class Game:
         self.item_images = {}
         for item in ITEM_IMAGES:
             self.item_images[item] = pg.image.load(path.join(item_img_folder, ITEM_IMAGES[item])).convert_alpha()
+
+    def change_map(self, door_name):
+        self.map = TiledMap(path.join(self.map_folder, door_name))
+        self.map_img = self.map.make_map()
+        self.map.rect = self.map_img.get_rect()
+        for tile_object in self.map.tmxdata.objects:
+            #FOR HIGHER RESOLUTION Added '* 2' which interprets for 64 bit instead of 32
+            obj_center = vec(tile_object.x * 2+ tile_object.width / 2,
+                             tile_object.y * 2+ tile_object.height / 2)
+            if tile_object.name == 'player':
+                self.player.pos = (obj_center.x, obj_center.y)
+
+            if tile_object.name in LIST_OF_MAPS:
+                #FOR HIGHER RESOLUTION added '* 2'
+                #CREATES THE DOORS TO THE PLACES THEY GO TO
+                Door(self, tile_object.x * 2, tile_object.y* 2 , tile_object.width * 2, tile_object.height * 2, tile_object.name)
+                
         
 
     def new_game(self):
@@ -84,6 +101,7 @@ class Game:
         self.mobs = pg.sprite.Group()
         self.orcmobs = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        self.doors = pg.sprite.Group()
         self.items = pg.sprite.Group()
         self.attacks = pg.sprite.Group()
         self.attack_animations = pg.sprite.Group()
@@ -109,8 +127,12 @@ class Game:
                 
             if tile_object.name == 'wall':
                 #FOR HIGHER RESOLUTION added '* 2' 
-                Obstacle(self, tile_object.x * 2, tile_object.y* 2 , tile_object.width, tile_object.height)
-
+                Obstacle(self, tile_object.x * 2, tile_object.y* 2 , tile_object.width * 2, tile_object.height * 2)
+            if tile_object.name in LIST_OF_MAPS:
+                #FOR HIGHER RESOLUTION added '* 2'
+                #CREATES THE DOORS TO THE PLACES THEY GO TO
+                Door(self, tile_object.x * 2, tile_object.y* 2 , tile_object.width * 2, tile_object.height * 2, tile_object.name)
+                
         #SEPERATE FOR-LOOP FOR EASIER MANAGEMENT 
         for tile_object in self.map.tmxdata.objects:
             #FOR HIGHER RESOLUTION Added '* 2' which interprets for 64 bit instead of 32
@@ -146,6 +168,7 @@ class Game:
         self.all_sprites.update()
         self.camera.update(self.player)
 
+
         #DAMAGING MOBS
         hits = pg.sprite.groupcollide(self.mobs, self.attacks, False, True)
         for mob in hits:
@@ -156,21 +179,24 @@ class Game:
         for mob in arrow_hits:
             for attack in arrow_hits[mob]:
                 mob.health -= attack.damage
-                
 
         #FOR COLLIDING WITH ITEMS THAT GET PICKED UP
-        hits = pg.sprite.spritecollide(self.player, self.items, False)
-        
-        for hit in hits:
+        item_pickups = pg.sprite.spritecollide(self.player, self.items, self.doors, False)
+        for hit in item_pickups:
             
-            if hit.type == 'basic_sword_1':
+            if hit.type in WEAPONS:
                 hit.kill()
-                self.player.inventory.append(hit.type)
+                self.player.weapon_inventory.append(hit.type)
                 self.player.weapon = hit.type
-            if hit.type == 'basic_bow_1':
-                hit.kill()
-                self.player.inventory.append(hit.type)
-                self.player.weapon = hit.type
+
+        #FOR PORTALS/DOORS
+        door_entries = pg.sprite.spritecollide(self.player, self.doors, False, False)
+        for door in door_entries:            
+            self.change_map(door.name)
+            break
+
+    
+
                 
     def draw(self):
         pg.display.set_caption((TITLE + " - FPS: " + "{:.2f}".format(self.clock.get_fps())))
@@ -188,6 +214,9 @@ class Game:
             
         for wall in self.walls:
             pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.hit_rect), 1)
+        for door in self.doors:
+            pg.draw.rect(self.screen, RED, self.camera.apply_rect(door.hit_rect), 1)
+        
                 
         pg.display.flip()
 
@@ -207,10 +236,10 @@ class Game:
                     self.change_weapon()
 
     def change_weapon(self):
-        list_length = len(self.player.inventory)
-        weapon_index = self.player.inventory.index(self.player.weapon)
+        list_length = len(self.player.weapon_inventory)
+        weapon_index = self.player.weapon_inventory.index(self.player.weapon)
         if list_length > 1:
-            for weaponz in self.player.inventory[weapon_index - 1:]:
+            for weaponz in self.player.weapon_inventory[weapon_index - 1:]:
                 if weaponz != self.player.weapon:
                     self.player.weapon = weaponz
                     

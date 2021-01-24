@@ -81,7 +81,8 @@ class Player(pg.sprite.Sprite):
         self.speed = PLAYER_SPEED
 
         #WEAPON SETTINGS
-        self.inventory = PLAYER_INVENTORY
+        self.weapon_inventory = PLAYER_WEAPON_INVENTORY
+        self.other_inventory = PLAYER_OTHER_INVENTORY
         self.weapon = 'fists'
         self.last_attack = 0
 
@@ -265,7 +266,7 @@ class OrcMob(pg.sprite.Sprite):
             self.kill()
 
 class MeleeAttackAni(pg.sprite.Sprite):
-    def __init__(self, game, pos, attackeffect, weapon, direction, spawn_time, expire_time):
+    def __init__(self, game, pos, attackeffect, weapon, angle, spawn_time, expire_time):
         super().__init__()
         self._layer = ITEMS_LAYER
         self.groups = game.all_sprites, game.attack_animations
@@ -280,16 +281,7 @@ class MeleeAttackAni(pg.sprite.Sprite):
         x, y = pos
         self.angle = 0
         self.pos = vec(x,y)
-        if direction == 'UP':
-            self.angle = 180
-        elif direction == 'DOWN':
-            self.angle = 0
-        elif direction == 'LEFT':
-            self.angle = 270
-        elif direction == 'RIGHT':
-            self.angle = 90
-        else:
-            self.angle = 40
+        self.angle = angle
             
         self.image = game.empty_pic
         self.rect = self.image.get_rect()
@@ -369,7 +361,7 @@ class MeleeAttack(pg.sprite.Sprite):
             self.angle = 40
             self.pos = vec(x,y)
         self.hit_rect = self.rect
-        MeleeAttackAni(self.game, self.pos, self.effect, self.weapon, direction, self.spawn_time, self.expiration_time)
+        MeleeAttackAni(self.game, self.pos, self.effect, self.weapon, self.angle, self.spawn_time, self.expiration_time)
 
 
     
@@ -473,8 +465,17 @@ class RangedAttack(pg.sprite.Sprite):
 
 
 class Door(pg.sprite.Sprite):
-    def __init__(self, game, x, y, w, h):
-        pass
+    def __init__(self, game, x, y, w, h, name):
+        self.groups = game.doors
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.name = name
+        self.rect = pg.Rect(x, y, w, h)
+        self.hit_rect = self.rect
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y    
 
 class Item(pg.sprite.Sprite):
     def __init__(self, game, pos, type):

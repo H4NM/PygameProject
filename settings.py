@@ -1,7 +1,7 @@
 import pygame as pg
 vec = pg.math.Vector2
 
-# define some colors (R, G, B)
+#THE COLORS (R, G, B)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 DARKGREY = (40, 40, 40)
@@ -13,6 +13,9 @@ ORANGE = (255, 200, 0)
 BROWN = (106, 55, 5)
 CYAN = (0, 255, 255)
 
+
+#MAP DETAILS
+LIST_OF_MAPS = ['level1.tmx', 'samplemap.tmx']
 WIDTH = 900
 HEIGHT = 700
 FPS = 60
@@ -43,7 +46,8 @@ ITEM_IMAGES = {'basic_sword_1': 'basic_sword_1.png',
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 220
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 65)
-PLAYER_INVENTORY = ['fists']
+PLAYER_WEAPON_INVENTORY = ['fists']
+PLAYER_OTHER_INVENTORY = []
 
 PLAYER_IMG = 'standing.png'
 
