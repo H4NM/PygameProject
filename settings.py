@@ -2,6 +2,7 @@ import pygame as pg
 vec = pg.math.Vector2
 
 #THE COLORS (R, G, B)
+BLUE = (0,0,255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 DARKGREY = (40, 40, 40)
@@ -9,6 +10,7 @@ LIGHTGREY = (100, 100, 100)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
+LIGHTYELLOW = (210, 255, 0)
 ORANGE = (255, 200, 0)
 BROWN = (106, 55, 5)
 CYAN = (0, 255, 255)
@@ -41,13 +43,25 @@ ITEM_IMAGES = {'basic_sword_1': 'basic_sword_1.png',
                'basic_bow_1': 'basic_bow_1.png'
                }
 
+#BUTTON SETTINGS
+BUTTON_SPRITESHEET = 'yellowSheet.png'
+
 
 #PLAYER SETTINGS
 PLAYER_HEALTH = 100
+PLAYER_MANA = 40
+PLAYER_STAMINA = 50
+PLAYER_STAMINA_REGEN = 0.1
+PLAYER_HP_REGEN = 0.1
+PLAYER_MANA_REGEN = 1
+
 PLAYER_SPEED = 220
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 65)
-PLAYER_WEAPON_INVENTORY = ['fists']
-PLAYER_OTHER_INVENTORY = []
+PLAYER_WEAPON_INVENTORY = ['fists', 'basic_fireball']
+PLAYER_ITEM_INVENTORY = []
+PLAYER_SPELL_INVENTORY = ['basic_heal']
+
+PLAYER_SPRITESHEET = "p1_walk.png"
 
 PLAYER_IMG = 'standing.png'
 
@@ -77,6 +91,9 @@ ORC_MOB_DAMAGE = 5
 ORC_MOB_SPEED = 40
 ORC_MOB_DETEC_RADIUS = 140
 ORC_MOB_HIT_RECT = pg.Rect(0, 0, 20, 35)
+
+ORC_MOB_SPRITESHEET = "om1_walk.png"
+
 ORC_MOB_IMG = 'L7E.png'
 
 ORC_MOB_RIGHT_1 = 'R1E.png'
@@ -108,6 +125,9 @@ SMALL_RECT = pg.Rect(0,0,30,30)
 #WEAPONS AND ITEMS
 EMPTY_PIC = 'empty_pic.png'
 
+FIREBALL_SPRITESHEET = 'fireball_spritesheet.png'
+EXPLOSION_SPRITESHEET = 'explosion_spritesheet.png'
+
 BASIC_SLASH_ATTACK_1 = 'slash_effect_1.png'
 BASIC_SLASH_ATTACK_2 = 'slash_effect_2.png'
 BASIC_SLASH_ATTACK_3 = 'slash_effect_3.png'
@@ -119,6 +139,7 @@ BASIC_ARROW_4 = 'basic_arrow_4.png'
 BASIC_ARROW_5 = 'basic_arrow_5.png'
 
 WEAPONS = {}
+SPELLS = {}
 
 #MELEE WEAPONS SETTINGS
 WEAPONS['fists'] = {
@@ -154,5 +175,27 @@ WEAPONS['basic_bow_1'] = {
                          'lifetime': 2500,
                          'rect': MEDIUM_RECT,
                          'spread': 3,
-                         'speed': 4
+                         'speed': 4,
+                         'stamina_cost': 2
                          }
+#SPELL SETTINGS
+WEAPONS['basic_fireball'] = {
+                         'type': 'spell',
+                         'attack_effect': 'fireball',
+                         'rate': 520,
+                         'kickback': 200,
+                         'damage': 1,
+                         'range': 20,
+                         'lifetime': 2500,
+                         'rect': MEDIUM_RECT,
+                         'spread': 3,
+                         'speed': 4,
+                         'mana_cost': 5
+                         }
+
+SPELLS['basic_heal'] = {
+                        'type': 'heal',
+                        'spell_effect': 'healing',
+                        'value': 25,
+                        'mana_cost': 10
+                        }
